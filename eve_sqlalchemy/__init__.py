@@ -17,10 +17,13 @@ from eve.utils import debug_error_message, str_to_date
 from flask import abort
 
 from .__about__ import __version__  # noqa
-from .parser import ParseError, parse, parse_dictionary, parse_sorting, sqla_op
+from .parser import (
+    ParseError, parse, parse_dictionary, parse_group_by, parse_sorting,
+    sqla_op,
+)
 from .structures import SQLAResultCollection
 from .utils import (
-    extract_sort_arg, rename_relationship_fields_in_dict,
+    extract_group_by_arg, extract_sort_arg, rename_relationship_fields_in_dict,
     rename_relationship_fields_in_sort_args, rename_relationship_fields_in_str,
     sqla_object_to_dict, validate_filters,
 )
@@ -73,6 +76,7 @@ class SQL(DataLayer):
         """
         try:
             args = {'sort': extract_sort_arg(req),
+                    'group_by': extract_group_by_arg(req),
                     'resource': resource}
         except Exception as e:
             self.app.logger.exception(e)
@@ -123,6 +127,12 @@ class SQL(DataLayer):
             for sort_item in args['sort']:
                 ql.append(parse_sorting(model, query, *sort_item))
             args['sort'] = ql
+
+        if args['group_by']:
+            ql = []
+            for group_item in args['group_by']:
+                ql.append(parse_group_by(model, query, group_item))
+            args['group_by'] = ql
 
         if req.max_results:
             args['max_results'] = req.max_results

@@ -14,7 +14,8 @@ from sqlalchemy.sql.elements import BooleanClauseList
 
 from eve_sqlalchemy import SQL
 from eve_sqlalchemy.parser import (
-    ParseError, parse, parse_dictionary, parse_sorting, sqla_op,
+    ParseError, parse, parse_dictionary, parse_group_by, parse_sorting,
+    sqla_op,
 )
 from eve_sqlalchemy.structures import SQLAResultCollection
 from eve_sqlalchemy.tests.test_sql_tables import Contacts
@@ -231,6 +232,12 @@ class TestSQLStructures(TestCase):
         self.assertEqual(str(parse_sorting(
             Contacts, self.query, 'username', -1, 'nullsfirst')).lower(),
             'contacts.username desc nulls first')
+
+    def test_base_group_by(self):
+        self.setupDB()
+        self.assertEqual(str(
+            parse_group_by(Contacts, self.query, 'username')).lower(),
+            'contacts.username')
 
     def setupDB(self):
         self.this_directory = os.path.dirname(os.path.realpath(__file__))

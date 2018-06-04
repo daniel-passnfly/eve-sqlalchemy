@@ -149,6 +149,22 @@ def parse_sorting(model, query, key, order=1, expression=None):
     return base_sort
 
 
+def parse_group_by(model, query, key):
+    """
+    Group by parser that works with embedded resources
+    Moved out from the query (find) method.
+    """
+    if '.' in key:  # group by related mapper class
+        rel, group_by_attr = key.split('.')
+        rel_class = getattr(model, rel).property.mapper.class_
+        query = query.outerjoin(rel_class)
+        base = getattr(rel_class, group_by_attr)
+    else:
+        base = getattr(model, key)
+
+    return base
+
+
 class SQLAVisitor(ast.NodeVisitor):
     """Implements the python-to-sql parser. Only Python conditional
     statements are supported, however nested, combined with most common compare

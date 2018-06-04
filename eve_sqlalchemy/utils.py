@@ -121,6 +121,20 @@ def extract_sort_arg(req):
         return None
 
 
+def extract_group_by_arg(req):
+    group_by = req.args.get('group_by')
+    if group_by:
+        if re.match('^[,\w]+$', group_by):
+            arg = []
+            for s in group_by.split(','):
+                arg.append(s)
+            return arg
+        else:
+            return ast.literal_eval(group_by)
+    else:
+        return None
+
+
 def rename_relationship_fields_in_sort_args(model, sort):
     result = []
     rename_mapping = _get_relationship_to_id_field_rename_mapping(model)

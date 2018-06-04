@@ -29,6 +29,7 @@ class SQLAResultCollection(object):
         self._fields = fields
         self._spec = kwargs.get('spec')
         self._sort = kwargs.get('sort')
+        self._group_by = kwargs.get('group_by')
         self._max_results = kwargs.get('max_results')
         self._page = kwargs.get('page')
         self._resource = kwargs.get('resource')
@@ -36,6 +37,8 @@ class SQLAResultCollection(object):
             self._query = self._query.filter(*self._spec)
         if self._sort:
             self._query = self._query.order_by(*self._sort)
+        if self._group_by:
+            self._query = self._query.group_by(*self._group_by)
 
         # save the count of items to an internal variables before applying the
         # limit to the query as that screws the count returned by it
